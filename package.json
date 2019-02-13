@@ -4,19 +4,19 @@
   "description": "",
   "main": "src/workload.js",
   "scripts": {
-    "graph-workload": "node src/workload.js $@",
+    "graph-workload": "node src/workload.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/neo-technology/gcloud-launcher.git"
+    "url": "https://github.com/moxious/graph-workload.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/neo-technology/gcloud-launcher/issues"
+    "url": "https://github.com/moxious/graph-workload.git/issues"
   },
-  "homepage": "https://github.com/neo-technology/gcloud-launcher#readme",
+  "homepage": "https://github.com/moxious/graph-workload",
   "dependencies": {
     "bluebird": "^3.5.3",
     "dimsum": "^0.2.2",

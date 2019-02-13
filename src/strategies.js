@@ -56,6 +56,9 @@ const showLastQuery = strategyTable => {
     });
 };
 
+const setup = (strategyTable, runConfig) =>
+  Object.keys(strategyTable).map(key => strategyTable[key].setup(runConfig.driver));
+
 module.exports = {
-    builder, report, showLastQuery,
+    builder, report, showLastQuery, setup,
 };

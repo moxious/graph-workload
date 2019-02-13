@@ -12,7 +12,6 @@
  * 
  * To customize the workload, consult the probabilityTable.
  */
-const neo4j = require('neo4j-driver').v1;
 const Promise = require('bluebird');
 const yargs = require('yargs');
 const pool = require('./sessionPool');
@@ -22,34 +21,23 @@ const PromisePool = require('es6-promise-pool');
 const _ = require('lodash');
 const WorkloadStats = require('./stats');
 
-const runConfig = runConfiguration(yargs.argv);
-
-console.log('Connecting to ', runConfig.address);
-const driver = neo4j.driver(runConfig.address,
-  neo4j.auth.basic(runConfig.username, runConfig.password));
-
-const sessionPool = pool.getPool(driver, runConfig.concurrency);
-
-const shutdownConnections = () => {
-  return sessionPool.drain()
-    .then(() => sessionPool.clear())
+const shutdownConnections = (runConfig, pool) => {
+  return pool.drain()
+    .then(() => pool.clear())
     .catch(err => {
       console.error('Some error draining/clearing pool', err);
     })
-    .then(() => driver.close());
+    .then(() => runConfig.driver.close());
 };
 
-const strategyTable = strategies.builder(sessionPool);
-const stats = new WorkloadStats(runConfig);
-
-const printStatus = () => {
+const printStatus = (runConfig, stats) => {
   const pctDone = parseFloat(Math.round(runConfig.iterateUntil.progress() * 100)).toFixed(2);
   const s = stats.getState();
   console.log(`Progress: ${pctDone}% ${s.complete} completed; ${s.running} running ${s.errors} error`);
 
   if (!runConfig.interrupted) {
     // Schedule myself again.
-    setTimeout(printStatus, runConfig.checkpointFreq);
+    setTimeout(() => printStatus(runConfig, stats), runConfig.checkpointFreq);
   }
 };
 
@@ -58,11 +46,7 @@ const sigintHandler = () => {
   console.log('Caught interrupt. Allowing current batch to finish.');
 };
 
-const didStrategy = name => {
-  stats[name] = (stats[name] || 0) + 1;
-};
-
-const runStrategy = (driver) => {
+const runStrategy = (runConfig, stats) => {
   if (runConfig.interrupted) { return Promise.resolve(null); }
   const roll = Math.random();
 
@@ -78,19 +62,11 @@ const runStrategy = (driver) => {
   }
 
   strat = strategyTable[key];
-  didStrategy(key);
-
-  return strat.run(driver);
+  stats.startStrategy(key);
+  return strat.run(runConfig.driver);
 };
 
-console.log(_.pick(runConfig, [
-  'address', 'username', 'concurrency', 'n', 'ms', 'checkpointFreq',
-]));
-process.on('SIGINT', sigintHandler);
-
-let exitCode = 0;
-
-const promiseProducer = () => {
+const promiseProducer = (runConfig, stats) => () => {
   if (runConfig.interrupted) { return null; }
 
   const v = runConfig.iterateUntil.next();
@@ -98,9 +74,8 @@ const promiseProducer = () => {
     // Signal to the pool that we're done.
     return null;
   }
-
-  stats.startStrategy();
-  return runStrategy(driver)
+  
+  return runStrategy(runConfig, stats)
     .catch(err => {
       stats.errorSeen(err);
       if (runConfig.failFast) {
@@ -113,30 +88,45 @@ const promiseProducer = () => {
     .then(data => stats.endStrategy(data));
 };
 
-const promisePool = new PromisePool(promiseProducer, runConfig.concurrency);
-promisePool.addEventListener('rejected', event => stats.internalError(event));
-
-const phase = (phase, fn) => {
+const phase = (runConfig, phase, fn) => {
   console.log('Beginning phase', phase);
   runConfig.phase = phase;
   return fn();
 };
 
-const setupPromisesFn = () =>
-  Object.keys(strategyTable).map(key => strategyTable[key].setup(driver));
-
 const main = () => {
+  const runConfig = runConfiguration.generateFromArgs(yargs.argv);
+
+  const sessionPool = pool.getPool(runConfig.driver, runConfig.concurrency);
+  const strategyTable = strategies.builder(sessionPool);
+  const stats = new WorkloadStats(runConfig);
+  
+  console.log(_.pick(runConfig, [
+    'address', 'username', 'concurrency', 'n', 'ms', 'checkpointFreq',
+  ]));
+  
+  let exitCode = 0;
+  
+  const promisePool = new PromisePool(promiseProducer(runConfig, stats), runConfig.concurrency);
+  promisePool.addEventListener('rejected', event => stats.internalError(event));
+  
   const startTime = new Date().getTime();
 
-  return Promise.all(phase('SETUP', setupPromisesFn))
-    .then(printStatus)
-    .then(() => phase('STRATEGIES', () => promisePool.start()))
+  const setupPromises = phase(runConfig, 'SETUP',
+    () => strategies.setup(strategyTable, runConfig));
+
+  return Promise.all(setupPromises)
+    .then(() => {      
+      process.on('SIGINT', sigintHandler);
+      printStatus(runConfig, stats);
+    })
+    .then(() => phase(runConfig, 'STRATEGIES', () => promisePool.start()))
     .catch(err => {
       console.error(err);
       strategies.showLastQuery(strategyTable);
       exitCode = 1;
     })
-    .finally(() => phase('SHUTDOWN', shutdownConnections))
+    .finally(() => phase(runConfig, 'SHUTDOWN', () => shutdownConnections(runConfig, sessionPool)))
     .then(() => {
       const endTime = new Date().getTime();
       // Because strategies run in parallel, you can not time this
@@ -145,7 +135,7 @@ const main = () => {
       let totalElapsed = (endTime - startTime);
       console.log(`BENCHMARK_ELAPSED=${totalElapsed}\n`);
     })
-    .then(() => phase('REPORT', () => strategies.report(strategyTable)))
+    .then(() => phase(runConfig, 'REPORT', () => strategies.report(strategyTable)))
     .then(() => console.log(stats.getState()))
     .then(() => process.exit(exitCode));
 };

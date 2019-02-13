@@ -24,8 +24,9 @@ module.exports = class WorkloadStats {
         console.error(err);
     }
 
-    startStrategy(d) {
+    startStrategy(strategyKey) {
         this.running++;
+        this[strategyKey] = (this[strategyKey] || 0) + 1;
     }
 
     endStrategy(data) {

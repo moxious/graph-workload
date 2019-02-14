@@ -9,7 +9,7 @@ yarn install
 export NEO4J_USER=neo4j
 export NEO4J_PASSWORD=supersecret
 export NEO4J_URI=bolt+routing://my-cloud-host:7687
-node src/workload.js
+node src/index.js
 ```
 
 Alternatively, you can pass some arguments, like this:
@@ -19,17 +19,20 @@ export NEO4J_USER=neo4j
 export NEO4J_PASSWORD=supersecret
 export NEO4J_URI=bolt+routing://my-cloud-host:7687
 
-node src/workload.js --concurrency 10 --n 20 --workload /path/to/read-workload.json
+node src/index.js --concurrency 10 --n 20 --workload /path/to/read-workload.json
 ```
 
 This would run the read workload in batches of 20, with 10 concurrent queries.
 
 See the `workloads` directory for the format of the probability table.
 
-# Building Stress Testing as a Docker Container
+You can use the script `npm run graph-workload` as a synonym for running the index.js file, but keep in mind npm requires an extra `--` argument prior to passing
+program arguments, as in, `npm run graph-workload -- --n 20`
+
+# Building Graph Workloads as a Docker Container
 
 ```
-docker build -t graph-workkload:latest -f Dockerfile . 
+docker build -t graph-workload:latest -f Dockerfile . 
 ```
 
 # Running

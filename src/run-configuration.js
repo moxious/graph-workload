@@ -1,5 +1,4 @@
 const terminateAfter = require('./termination-condition');
-const neo4j = require('neo4j-driver').v1;
 
 const usage = () => {
     console.log(`
@@ -81,7 +80,6 @@ const generateFromArgs = (args) => {
         iterateUntil,
         probabilityTable,
         failFast,
-        interrupted: false,
         phase: 'NOT_STARTED',
     };
 
@@ -91,19 +89,7 @@ const generateFromArgs = (args) => {
         obj.ms = args.ms || 1000 * 60 * 5; // 5 minutes
     }
 
-    console.log('Connecting to ', obj.address);
-    const driver = neo4j.driver(obj.address,
-        neo4j.auth.basic(obj.username, obj.password));
-    obj.driver = driver;
-
     return obj;
-};
-
-const getDriver = runConfig => {
-    console.log('Connecting to ', runConfig.address);
-    const driver = neo4j.driver(runConfig.address,
-      neo4j.auth.basic(runConfig.username, runConfig.password));
-    return driver;
 };
 
 module.exports = {

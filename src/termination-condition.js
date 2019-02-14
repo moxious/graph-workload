@@ -3,8 +3,16 @@ const moment = require('moment');
  * This module represents a termination condition.
  * 
  * You can choose to terminate either after a certain number of runs, or after a certain timeout.
+ * 
+ * Later if needed custom conditions can be added, such as terminate after too many
+ * errors, etc.
  */
 module.exports = {
+    /**
+     * Terminate after n runs.
+     * @param {Number} n the number of maximum runs to allow before termination.
+     * @returns {Object} with a next and progress function.
+     */
     nRuns: n => {
         let range = { from: 0, to: n, counter: 0 };
 
@@ -20,6 +28,15 @@ module.exports = {
         };
     },
 
+    /**
+     * Terminate after a certain number of milliseconds.
+     * 
+     * The timer does not begin until the next function is called for the first
+     * time.
+     * 
+     * @param {Number} ms the number of milliseconds.
+     * @returns {Object} with a next and progress function.
+     */
     timeoutMilliseconds: ms => {
         let range = { 
             startTime: -1, 

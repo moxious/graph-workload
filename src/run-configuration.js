@@ -35,8 +35,6 @@ const defaultProbabilityTable = [
 ];
 
 const generateFromArgs = (args) => {
-    console.log('YARGS');
-    console.log(args);
     const badlyConfigured = (
         // User is being inconsistent about when to stop.
         (args.n && args.ms) ||

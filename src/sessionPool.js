@@ -1,6 +1,15 @@
 const genericPool = require('generic-pool');
 let sessionPool = null;
 
+/**
+ * A session pool is just what it sounds like.  In bolt, there is overhead associated
+ * with sessions (particularly network round trips) that can increase latency.
+ * For this reason we aggressively reuse sessions as much as we can without trying to run
+ * more than one transaction on a given session.
+ * 
+ * This pool object lets users lease/release a session.  In general the strategies are the
+ * ones who are pulling these sessions.
+ */
 module.exports = {
     getPool: (driver, poolSize) => {
         if (sessionPool) {
@@ -8,6 +17,7 @@ module.exports = {
         }
 
         // How to create/destroy sessions.
+        // See the generic-pool module for more details.
         const factory = {
             create: () => {
                 const s = driver.session();
@@ -30,16 +40,5 @@ module.exports = {
         sessionPool.start();
 
         return sessionPool;
-    },
-
-    destroy: () => {
-        return sessionPool.drain()
-            .then(() => sessionPool.clear())
-            .catch(err => {
-                console.error('Some error draining/clearing pool', err);
-            })
-            .finally(() => {
-                sessionPool = null;
-            });
     },
 };

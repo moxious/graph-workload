@@ -15,6 +15,11 @@ const MetadataReadStrategy = require('./read-strategy/MetadataReadStrategy');
 const LongPathReadStrategy = require('./read-strategy/LongPathReadStrategy');
 const RandomAccessReadStrategy = require('./read-strategy/RandomAccessReadStrategy');
 
+/**
+ * Produces a strategy table
+ * @param {SessionPool} sessionPool 
+ * @returns {Object} key is strategy name, value is a Strategy instance object.
+ */
 const builder = sessionPool => ({
     // WRITE STRATEGIES
     naryWrite: new NAryTreeStrategy({ n: 2, sessionPool }),
@@ -34,6 +39,10 @@ const builder = sessionPool => ({
     randomAccess: new RandomAccessReadStrategy({ sessionPool }),
 });
 
+/**
+ * Reports key stats about strategies
+ * @param {StrategyTable} strategyTable 
+ */
 const report = strategyTable => {
     console.log('Strategy report');
 

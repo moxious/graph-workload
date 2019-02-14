@@ -12,7 +12,6 @@
  * 
  * To customize the workload, consult the probabilityTable.
  */
-const Promise = require('bluebird');
 const yargs = require('yargs');
 const strategies = require('./strategies');
 const runConfiguration = require('./run-configuration');

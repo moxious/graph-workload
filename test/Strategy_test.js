@@ -3,6 +3,9 @@ const assert = require('chai').assert;
 const Strategy = require('../src/Strategy');
 const Promise = require('bluebird');
 const mocks = require('./mocks');
+const chai = require('chai');
+const chaiAsPromised = require("chai-as-promised");
+chai.use(chaiAsPromised);
 
 describe('Strategy', () => {
     let s;
@@ -48,6 +51,10 @@ describe('Strategy', () => {
 
     it('tracks total time spent', () => {
         expect(s.totalTimeSpent()).to.equal(0);
+    });
+
+    it('rejects run efforts because that has to be overridden', () => {
+        expect(s.run()).to.be.rejected;
     });
 
     it('can time a function', done => {

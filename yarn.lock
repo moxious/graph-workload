@@ -306,6 +306,13 @@ camelcase@^5.0.0:
   resolved "https://neo.jfrog.io/neo/api/npm/npm/camelcase/-/camelcase-5.0.0.tgz#03295527d58bd3cd4aa75363f35b2e8d97be2f42"
   integrity sha1-AylVJ9WL081Kp1Nj81sujZe+L0I=
 
+chai-as-promised@^7.1.1:
+  version "7.1.1"
+  resolved "https://neo.jfrog.io/neo/api/npm/npm/chai-as-promised/-/chai-as-promised-7.1.1.tgz#08645d825deb8696ee61725dbf590c012eb00ca0"
+  integrity sha1-CGRdgl3rhpbuYXJdv1kMAS6wDKA=
+  dependencies:
+    check-error "^1.0.2"
+
 chai@^4.2.0:
   version "4.2.0"
   resolved "https://neo.jfrog.io/neo/api/npm/npm/chai/-/chai-4.2.0.tgz#760aa72cf20e3795e84b12877ce0e83737aa29e5"

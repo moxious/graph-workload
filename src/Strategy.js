@@ -68,6 +68,10 @@ class Strategy {
     time(somePromiseFunc, data={}) {
         const start = new Date().getTime();
 
+        if (!this.props.sessionPool) {
+            throw new Error('Missing sessionPool');
+        }
+
         const closure = () => {
             let s;
 

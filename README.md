@@ -29,6 +29,12 @@ See the `workloads` directory for the format of the probability table.
 You can use the script `npm run graph-workload` as a synonym for running the index.js file, but keep in mind npm requires an extra `--` argument prior to passing
 program arguments, as in, `npm run graph-workload -- --n 20`
 
+# Tests
+
+```
+yarn run test
+```
+
 # Building Graph Workloads as a Docker Container
 
 ```

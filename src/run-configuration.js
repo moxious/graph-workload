@@ -18,7 +18,7 @@ You may only specify one of the options --n or --ms.
 Username, password, and address for Neo4j will be taken from the environment variables
 NEO4J_USER, NEO4J_PASSWORD, and NEO4J_URI if not specified.
 `)
-    process.exit(1);
+    throw new Error('Incomplete/incorrect arguments passed');
 };
 
 const defaultProbabilityTable = [

@@ -1,5 +1,7 @@
 # Graph Workloads
 
+[![CircleCI](https://circleci.com/gh/moxious/graph-workload.svg?style=svg)](https://circleci.com/gh/moxious/graph-workload)
+
 Tools for generating workloads on Neo4j.
 
 # Running Stand-Alone

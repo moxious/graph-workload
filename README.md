@@ -4,6 +4,12 @@
 
 Tools for generating workloads on Neo4j.
 
+I use this for benchmarking and load testing Neo4j instances.  It provides a framework where you 
+can either design your own mixed read/write workload from strategies provided, or design your own
+reads/writes to execute against a database, while keeping track of execution stats.
+
+You can run workloads timed (i.e. for 5,000 ms) or numbered (i.e. 5,000 runs).  
+
 # Running Stand-Alone
 
 ```

@@ -7,19 +7,24 @@ class MockTx {
 }
 
 class MockSession {
-    run() {
-        return Promise.resolve(true);
+    constructor() {
+        this.reads = 0;
+        this.writes = 0;
+        this.runs = 0;
     }
 
     run(stmt, params) {
+        this.runs++;
         return Promise.resolve({});
     }
 
     writeTransaction(fn) {
+        this.writes++;
         return fn(new MockTx());
     }
 
     readTransaction(fn) {
+        this.reads++;
         return fn(new MockTx());
     }
 
@@ -47,14 +52,19 @@ class MockDriver {
 class MockSessionPool {
     constructor() {
         this.inUse = 0;
+        this.session = new MockSession();
     }
 
     acquire() {
         this.inUse++;
-        return Promise.resolve(new MockSession());
+        return Promise.resolve(this.session);
     }
 
-    release() {
+    release(s) {
+        if (s !== this.session) {
+            throw new Error('Releasing a session which is not what was acquired!');
+        }
+
         this.inUse--;
         return Promise.resolve(true);
     }

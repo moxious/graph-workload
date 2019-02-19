@@ -11,7 +11,7 @@ class MetadataReadStrategy extends Strategy {
     run(driver) {
         const i = this.randInt(50);
 
-        const f = (s = driver.session()) => {
+        const f = (s) => {
             let query;
             const choice = i % 3;
 

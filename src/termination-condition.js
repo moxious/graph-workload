@@ -20,7 +20,7 @@ module.exports = {
             next: () => {
                 const value = range.counter++;
                 return {
-                    done: range.counter >= range.to,
+                    done: range.counter > range.to,
                     value,
                 };
             },

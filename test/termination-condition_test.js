@@ -20,6 +20,9 @@ describe('Termination Conditions', function () {
 
         // Run 3
         v = n.next();
+        expect(v.done).to.equal(false);
+
+        v = n.next();
         expect(v.done).to.equal(true);
     });
 

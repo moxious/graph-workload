@@ -1,5 +1,11 @@
 const Promise = require('bluebird');
 
+class MockTx {
+    run() {
+        return Promise.resolve(true);
+    }
+}
+
 class MockSession {
     run() {
         return Promise.resolve(true);
@@ -7,6 +13,14 @@ class MockSession {
 
     run(stmt, params) {
         return Promise.resolve({});
+    }
+
+    writeTransaction(fn) {
+        return fn(new MockTx());
+    }
+
+    readTransaction(fn) {
+        return fn(new MockTx());
     }
 
     close() {

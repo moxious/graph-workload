@@ -5,7 +5,7 @@
   "main": "src/run-workload.js",
   "scripts": {
     "graph-workload": "node src/run-workload.js",
-    "test": "nyc mocha --recursive"
+    "test": "nyc --reporter=lcov --reporter=text-lcov mocha --recursive"
   },
   "repository": {
     "type": "git",

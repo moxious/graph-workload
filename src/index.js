@@ -12,7 +12,6 @@
  * 
  * To customize the workload, consult the probabilityTable.
  */
-const yargs = require('yargs');
 const strategies = require('./strategies');
 const runConfiguration = require('./run-configuration');
 const _ = require('lodash');
@@ -23,8 +22,8 @@ const sigintHandler = workload => {
   console.log('Caught interrupt. Allowing current batch to finish.');
 };
 
-const main = () => {
-  const runConfig = runConfiguration.generateFromArgs(yargs.argv);
+const main = (args) => {
+  const runConfig = runConfiguration.generateFromArgs(args);
   const workload = new Workload(runConfig);
 
   console.log(_.pick(workload.runConfig, [
@@ -56,4 +55,12 @@ const main = () => {
     .then(() => process.exit(exitCode));
 };
 
-main();
+module.exports = {
+  main,
+  Workload,
+  sessionPool: require('./sessionPool'),
+  terminationCondition: require('./termination-condition'),
+  ProbabilityTable: require('./stats/ProbabilityTable'),
+  WorkloadStats: require('./stats/index'),
+  strategies: require('./strategies'),
+};

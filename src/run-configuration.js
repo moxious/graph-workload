@@ -1,12 +1,10 @@
 const terminateAfter = require('./termination-condition');
 const ProbabilityTable = require('./stats/ProbabilityTable');
 
-const usage = () => {
-    console.log(`
-Usage: node stress.js 
-   [-a address] 
-   [-u username] 
-   [-p password] 
+const usageStr = `
+Usage: run-workload.js -p password
+   [-a address]
+   [-u username]
    [-n hits] how many total queries to run
    [--ms milliseconds] how many milliseconds to test for
    [--workload /path/to/workload.json] probability table spec
@@ -15,12 +13,7 @@ Usage: node stress.js
    [--fail-fast] if specified, the work will stop after encountering one failure.
 
 You may only specify one of the options --n or --ms.
-
-Username, password, and address for Neo4j will be taken from the environment variables
-NEO4J_USER, NEO4J_PASSWORD, and NEO4J_URI if not specified.
-`)
-    throw new Error('Incomplete/incorrect arguments passed');
-};
+`;
 
 const defaultProbabilityTable = [
     [0.1, 'fatnodeWrite'],
@@ -60,6 +53,7 @@ const generateFromArgs = (args) => {
         iterateUntil = terminateAfter.timeoutMilliseconds(args.ms);
         runType = 'timed';
     } else {
+        console.log('no n in ', args);
         iterateUntil = terminateAfter.nRuns(10000);
         runType = 'counted';
     }
@@ -68,10 +62,13 @@ const generateFromArgs = (args) => {
 
     const failFast = ('fail-fast' in args) ? args['fail-fast'] : false;
 
+    const addressify = str => 
+        str.indexOf('://') === -1 ? `bolt://${str}` : str;
+
     const obj = {
         username: args.u || process.env.NEO4J_USER || 'neo4j',
         password: args.p || process.env.NEO4J_PASSWORD,
-        address: args.a || process.env.NEO4J_URI,
+        address: addressify(args.a || process.env.NEO4J_URI),
         probabilityTable: new ProbabilityTable(probabilityTable),
         runType,
         checkpointFreq: args.checkpoint || process.env.CHECKPOINT_FREQUENCY || 5000,
@@ -92,4 +89,21 @@ const generateFromArgs = (args) => {
 
 module.exports = {
     generateFromArgs,
+    yargs: () => {
+        return require('yargs')
+            .usage(usageStr)
+            .example('$0 -a localhost -u neo4j -p secret -n 10', 'Run 10 hits on the local database')
+            .default('a', 'localhost')
+            .default('u', 'neo4j')
+            .describe('a', 'address to connect to')
+            .describe('u', 'username')
+            .describe('p', 'password')
+            .describe('n', 'number of hits on the database')
+            .describe('ms', 'number of milliseconds to execute')
+            .describe('workload', 'absolute path to JSON probability table/workload')
+            .default('concurrency', 10)
+            .default('checkpoint', 5000)
+            .demandOption(['p'])
+            .argv;
+    },
 };

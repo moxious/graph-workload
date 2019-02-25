@@ -33,8 +33,6 @@ module.exports = class ProbabilityTable {
                 throw new Error('Inner probability table row must have 2 elements');
             }
         }
-
-        console.log('GOOD', this.data);
     }
 
     choose() {

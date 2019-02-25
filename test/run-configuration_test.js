@@ -1,6 +1,7 @@
 const expect = require('chai').expect;
 const assert = require('chai').assert;
 const runConfig = require('../src/run-configuration');
+const ProbabilityTable = require('../src/stats/ProbabilityTable');
 const _ = require('lodash');
 
 describe('Run Configuration', function() {
@@ -32,6 +33,7 @@ describe('Run Configuration', function() {
         expect(c.concurrency).to.equal(args.concurrency);
         expect(c.iterateUntil).to.be.ok;
         expect(c.probabilityTable).to.be.ok;
+        expect(c.probabilityTable).to.be.instanceOf(ProbabilityTable);
         expect(c.checkpointFreq).to.be.ok;
     });
 

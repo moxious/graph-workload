@@ -1,4 +1,5 @@
 const terminateAfter = require('./termination-condition');
+const ProbabilityTable = require('./stats/ProbabilityTable');
 
 const usage = () => {
     console.log(`
@@ -71,12 +72,11 @@ const generateFromArgs = (args) => {
         username: args.u || process.env.NEO4J_USER || 'neo4j',
         password: args.p || process.env.NEO4J_PASSWORD,
         address: args.a || process.env.NEO4J_URI,
-        probabilityTable,
+        probabilityTable: new ProbabilityTable(probabilityTable),
         runType,
         checkpointFreq: args.checkpoint || process.env.CHECKPOINT_FREQUENCY || 5000,
         concurrency: (!Number.isNaN(p) && p > 0) ? p : 10,
         iterateUntil,
-        probabilityTable,
         failFast,
         phase: 'NOT_STARTED',
     };

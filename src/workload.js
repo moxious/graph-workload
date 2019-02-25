@@ -138,20 +138,9 @@ class Workload {
       return Promise.resolve(null);
     }
 
-    const roll = Math.random();
+    const key = this.runConfig.probabilityTable.choose();
+    const strat = this.strategyTable[key];
 
-    let strat;
-    let key;
-
-    for (let i = 0; i < this.runConfig.probabilityTable.length; i++) {
-      const entry = this.runConfig.probabilityTable[i];
-      if (roll <= entry[0]) {
-        key = entry[1];
-        break;
-      }
-    }
-
-    strat = this.strategyTable[key];
     this.stats.startStrategy(key);
     return strat.run(this.driver);
   };

@@ -66,7 +66,7 @@ class Workload {
       neo4j.auth.basic(this.runConfig.username, this.runConfig.password));
 
     this.sessionPool = pool.getPool(this.driver, this.runConfig.concurrency);
-    this.strategyTable = strategies.builder(this.sessionPool);
+    this.strategyTable = strategies.builder(this.sessionPool, this.runConfig);
     this.stats = new WorkloadStats(this.runConfig);
   
     this.promisePool = new PromisePool(promiseProducer(this), this.runConfig.concurrency);

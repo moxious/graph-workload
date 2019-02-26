@@ -9,11 +9,13 @@ Usage: run-workload.js -p password
    [-n hits] how many total queries to run
    [--ms milliseconds] how many milliseconds to test for
    [--workload /path/to/workload.json] probability table spec
+   [--query CYPHER_QUERY] single cypher query to run
    [--concurrency c] how many concurrent queries to run (default: 10)
    [--checkpoint cn] how often to print results in milliseconds (default: 5000)
    [--fail-fast] if specified, the work will stop after encountering one failure.
 
 You may only specify one of the options --n or --ms.
+You may only specify one of the options --workload or --query
 `;
 
 const defaultProbabilityTable = [
@@ -67,10 +69,6 @@ const chooseConnectionDetails = (args) => {
     };
 };
 
-const chooseWorkload = (args) => {
-
-}
-
 const chooseConcurrency = (args) => {
     const p = Number(args.concurrency) || Number(process.env.CONCURRENCY);
     return {
@@ -79,17 +77,32 @@ const chooseConcurrency = (args) => {
 };
 
 const chooseProbabilityTable = (args) => {
-    const ptData = args.workload ? require(args.workload) : defaultProbabilityTable;
+    let ptData = args.workload ? require(args.workload) : defaultProbabilityTable;
     
-    return {
+    if (args.query) {
+        // Always run the custom query.
+        ptData = [
+            [ 1.0, 'custom' ],
+        ];
+    }
+
+    const result = {
         probabilityTable: new ProbabilityTable(ptData)
     };
+
+    if (args.query) {
+        result.query = args.query;
+    }
+
+    return result;
 };
 
 const generateFromArgs = (args) => {
     const badlyConfigured = (
         // User is being inconsistent about when to stop.
         (args.n && args.ms) ||
+        // Trying to specify to both run a single query and a different workload...
+        (args.query && args.workload) || 
         // We don't know where to connect...
         (!process.env.NEO4J_URI && !args.a) ||
         // Don't know what password to use...
@@ -137,6 +150,7 @@ module.exports = {
             .describe('n', 'number of hits on the database')
             .describe('ms', 'number of milliseconds to execute')
             .describe('workload', 'absolute path to JSON probability table/workload')
+            .describe('query', 'Cypher query to run')
             .default('concurrency', 10)
             .default('checkpoint', 5000)
             .demandOption(['p'])

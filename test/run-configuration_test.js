@@ -43,4 +43,14 @@ describe('Run Configuration', function() {
         expect(c.runType).to.equal('timed');
         expect(c.ms).to.equal(newArgs.ms);
     });
+
+    it('returns a query and fixed probability table when asked', () => {
+        const newArgs = _.merge({
+            query: 'RETURN 1;'
+        }, args);
+
+        const c = runConfig.generateFromArgs(newArgs);
+        expect(c.query).to.equal(newArgs.query);
+        expect(c.probabilityTable.choose()).to.equal('custom');
+    });
 });

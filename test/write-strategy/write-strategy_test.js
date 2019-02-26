@@ -49,7 +49,7 @@ describe('Write Strategies', function() {
             it('has a setup method', () => expect(s.setup(driver)).to.be.fulfilled);
 
             it('runs exactly 1 write query, and for it to be timed.', () =>
-                s.run(driver)
+                s.run()
                     .then(results => {
                         expect(sp.inUse).to.equal(0);
                         expect(sp.session.reads).to.equal(0);

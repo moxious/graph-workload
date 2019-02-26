@@ -22,7 +22,7 @@ class NAryTreeStrategy extends Strategy {
             .then(() => session.close());
     }
 
-    run(driver) {
+    run() {
         this.tracker = (this.tracker || 1) + 1;
         this.lastParams = { tracker: this.tracker };
 

@@ -15,7 +15,7 @@ class Strategy {
     }
 
     getName() { return this.name; }
-    run(driver) { 
+    run() { 
         return Promise.reject('Override me in subclass');
     }
 

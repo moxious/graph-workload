@@ -31,7 +31,7 @@ class LockTortureStrategy extends Strategy {
             .then(() => session.close());
     }
     
-    run(driver) {
+    run() {
         const id1 = this.randInt(this.n);
         const id2 = this.randInt(this.n);
 

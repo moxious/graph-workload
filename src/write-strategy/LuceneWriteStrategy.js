@@ -26,11 +26,7 @@ class LuceneWriteStrategy extends Strategy {
             .then(() => session.close());
     }
 
-    run(driver) {
-        if (!this.session) {
-            this.session = driver.session();
-        }
-
+    run() {
         const p = this.randInt(10000000);
         const r = p - 10000;
 

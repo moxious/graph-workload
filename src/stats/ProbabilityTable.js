@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 /**
  * Represents a table of probabilities, and different chosen outcomes.
  * A table is an array of arrays, where the first cell is a float from 0-1,
@@ -33,6 +35,10 @@ module.exports = class ProbabilityTable {
                 throw new Error('Inner probability table row must have 2 elements');
             }
         }
+    }
+
+    getLabels() {
+        return _.uniq(this.data.map(row => row[1]));
     }
 
     choose() {

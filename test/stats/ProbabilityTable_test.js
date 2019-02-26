@@ -54,4 +54,19 @@ describe('Stats', function() {
             expect(choice).to.be.oneOf([HEADS, TAILS]);
         }
     });
+
+    it('can return unique labels', () => {
+        const pt = new ProbabilityTable([
+            [ 0.1, 'cat' ],
+            [ 0.2, 'cat' ],
+            [ 0.5, 'dog' ],
+            [ 1, 'fox' ],
+        ]);
+
+        const labels = pt.getLabels();
+        expect(labels).to.contain('cat');
+        expect(labels).to.contain('dog');
+        expect(labels).to.contain('fox');
+        expect(labels.length).to.equal(3);
+    });
 });

@@ -1,5 +1,6 @@
 const terminateAfter = require('./termination-condition');
 const ProbabilityTable = require('./stats/ProbabilityTable');
+const _ = require('lodash');
 
 const usageStr = `
 Usage: run-workload.js -p password
@@ -28,21 +29,11 @@ const defaultProbabilityTable = [
     [1, 'rawWrite'],
 ];
 
-const generateFromArgs = (args) => {
-    const badlyConfigured = (
-        // User is being inconsistent about when to stop.
-        (args.n && args.ms) ||
-        // We don't know where to connect...
-        (!process.env.NEO4J_URI && !args.a) ||
-        // Don't know what password to use...
-        (!process.env.NEO4J_PASSWORD && !args.p)
-    );
-
-    if (badlyConfigured) {
-        usage();
-    }
-
-    const probabilityTable = args.workload ? require(args.workload) : defaultProbabilityTable;
+/**
+ * @param {*} args a yargs object
+ * @returns { iterateUntil, runType } of when to stop.
+ */
+const chooseTerminationType = (args) => {
     let iterateUntil;
     let runType;
 
@@ -58,25 +49,70 @@ const generateFromArgs = (args) => {
         runType = 'counted';
     }
 
-    const p = Number(args.concurrency) || Number(process.env.CONCURRENCY);
+    return { iterateUntil, runType };
+};
 
-    const failFast = ('fail-fast' in args) ? args['fail-fast'] : false;
-
+/**
+ * @param {*} args a yargs object
+ * @returns { username, password, address } of where to connect
+ */
+const chooseConnectionDetails = (args) => {
     const addressify = str => 
         str.indexOf('://') === -1 ? `bolt://${str}` : str;
 
-    const obj = {
+    return {
         username: args.u || process.env.NEO4J_USER || 'neo4j',
         password: args.p || process.env.NEO4J_PASSWORD,
         address: addressify(args.a || process.env.NEO4J_URI),
-        probabilityTable: new ProbabilityTable(probabilityTable),
-        runType,
-        checkpointFreq: args.checkpoint || process.env.CHECKPOINT_FREQUENCY || 5000,
+    };
+};
+
+const chooseWorkload = (args) => {
+
+}
+
+const chooseConcurrency = (args) => {
+    const p = Number(args.concurrency) || Number(process.env.CONCURRENCY);
+    return {
         concurrency: (!Number.isNaN(p) && p > 0) ? p : 10,
-        iterateUntil,
+    };
+};
+
+const chooseProbabilityTable = (args) => {
+    const ptData = args.workload ? require(args.workload) : defaultProbabilityTable;
+    
+    return {
+        probabilityTable: new ProbabilityTable(ptData)
+    };
+};
+
+const generateFromArgs = (args) => {
+    const badlyConfigured = (
+        // User is being inconsistent about when to stop.
+        (args.n && args.ms) ||
+        // We don't know where to connect...
+        (!process.env.NEO4J_URI && !args.a) ||
+        // Don't know what password to use...
+        (!process.env.NEO4J_PASSWORD && !args.p)
+    );
+
+    if (badlyConfigured) {
+        usage();
+    }
+
+    const terminationType = chooseTerminationType(args);
+    const connectionDetails = chooseConnectionDetails(args);
+    const concurrency = chooseConcurrency(args);
+    const probabilityTable = chooseProbabilityTable(args);
+
+    const failFast = ('fail-fast' in args) ? args['fail-fast'] : false;
+
+    // Merge sub-objects.
+    const obj = _.merge({
+        checkpointFreq: args.checkpoint || process.env.CHECKPOINT_FREQUENCY || 5000,
         failFast,
         phase: 'NOT_STARTED',
-    };
+    }, terminationType, probabilityTable, connectionDetails, concurrency);
 
     if (obj.runType === 'counted') {
         obj.n = args.n || 10000;

@@ -22,7 +22,7 @@ class MergeWriteStrategy extends Strategy {
             .then(() => session.close());
     }
 
-    run(driver) {
+    run() {
         this.lastQuery = `
         MERGE (n:MergeNode { id: $id1 }) ON CREATE SET n.uuid = $u1 SET n:SimpleWrite
         MERGE (p:MergeNode { id: $id2 }) ON CREATE SET p.uuid = $u2 SET p:SimpleWrite

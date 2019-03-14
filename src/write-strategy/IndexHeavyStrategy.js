@@ -44,7 +44,7 @@ class IndexHeavyStrategy extends Strategy {
             .then(() => session.close());
     }
     
-    run(driver) {
+    run() {
         const id = uuid.v4();
         const q = `
             MERGE (c:Customer { username: $username })

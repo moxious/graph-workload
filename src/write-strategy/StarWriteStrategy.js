@@ -12,7 +12,7 @@ class StarWriteStrategy extends Strategy {
         this.n = props.n || MAX_STAR_SIZE;
     }
 
-    run(driver) {
+    run() {
         const id = uuid.v4();
         const q = `
             CREATE (h:Hub { id: $id })

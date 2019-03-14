@@ -9,11 +9,7 @@ class FatNodeAppendStrategy extends Strategy {
         this.label = props.label;
     }
 
-    run(driver) {
-        if (!this.session) {
-            this.session = driver.session();
-        }
-
+    run() {
         const p = this.randInt(10000000);
         const r = p - 10000;
 
@@ -29,7 +25,7 @@ class FatNodeAppendStrategy extends Strategy {
         }))`;
         this.lastParams = { uuid: uuid.v4(), data };
         
-        const f = (s = driver.session()) => s.writeTransaction(tx => tx.run(this.lastQuery, this.lastParams));
+        const f = (s) => s.writeTransaction(tx => tx.run(this.lastQuery, this.lastParams));
         return this.time(f);
     }
 }

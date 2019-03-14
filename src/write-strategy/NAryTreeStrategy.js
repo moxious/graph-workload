@@ -4,8 +4,9 @@ const Promise = require('bluebird');
 class NAryTreeStrategy extends Strategy {
     constructor(props) {
         super(props);
-        this.n = props.n;
+        this.n = props.n || 2;
         this.name = 'NAryTree';
+        this.tracker = -10;
     }
 
     setup(driver) {
@@ -22,15 +23,15 @@ class NAryTreeStrategy extends Strategy {
             .then(() => session.close());
     }
 
-    run(driver) {
-        this.tracker = (this.tracker || 1) + 1;
+    run() {
+        // this.tracker++;
         this.lastParams = { tracker: this.tracker };
 
         this.lastQuery = `
             MATCH (p:Leaf)
             WHERE p.val >= $tracker
-            WITH p ORDER BY p.val DESC
-            LIMIT 10
+            WITH p ORDER BY p.val DESC, rand()
+            LIMIT ${this.n}
             WHERE NOT (p)-[:child]->(:NAryTree)
             WITH p
             REMOVE p:Leaf
@@ -41,7 +42,7 @@ class NAryTreeStrategy extends Strategy {
                     `
                 }).join('\n')
             }
-            RETURN p.val;
+            RETURN count(p) as value;
         `;
 
         const f = (s) => s.writeTransaction(tx => tx.run(this.lastQuery, this.lastParams));

@@ -8,8 +8,8 @@ class AggregateReadStrategy extends Strategy {
         this.name = 'AggregateRead';
     }
 
-    run(driver) {
-        const f = (s = driver.session()) => s.readTransaction(tx => tx.run(`
+    run() {
+        const f = (s) => s.readTransaction(tx => tx.run(`
             MATCH (v:NAryTree) 
             WHERE id(v) % $r = 0
             RETURN min(v.val), max(v.val), stdev(v.val), count(v.val)`, 

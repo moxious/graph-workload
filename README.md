@@ -37,6 +37,14 @@ See the `workloads` directory for the format of the probability table.
 You can use the script `npm run graph-workload` as a synonym for running the index.js file, but keep in mind npm requires an extra `--` argument prior to passing
 program arguments, as in, `npm run graph-workload -- --n 20`
 
+# Examples
+
+Create a lot of nodes as fast as possible:
+
+```
+npm run graph-workload -- -a localhost -u neo4j -p admin --query 'Unwind range(1,1000000) as id create (n);' -n 50 --concurrency 4
+```
+
 # Tests
 
 ```

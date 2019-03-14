@@ -1,5 +1,6 @@
 const terminateAfter = require('./termination-condition');
 const ProbabilityTable = require('./stats/ProbabilityTable');
+const _ = require('lodash');
 
 const usageStr = `
 Usage: run-workload.js -p password
@@ -8,11 +9,13 @@ Usage: run-workload.js -p password
    [-n hits] how many total queries to run
    [--ms milliseconds] how many milliseconds to test for
    [--workload /path/to/workload.json] probability table spec
+   [--query CYPHER_QUERY] single cypher query to run
    [--concurrency c] how many concurrent queries to run (default: 10)
    [--checkpoint cn] how often to print results in milliseconds (default: 5000)
    [--fail-fast] if specified, the work will stop after encountering one failure.
 
 You may only specify one of the options --n or --ms.
+You may only specify one of the options --workload or --query
 `;
 
 const defaultProbabilityTable = [
@@ -28,21 +31,11 @@ const defaultProbabilityTable = [
     [1, 'rawWrite'],
 ];
 
-const generateFromArgs = (args) => {
-    const badlyConfigured = (
-        // User is being inconsistent about when to stop.
-        (args.n && args.ms) ||
-        // We don't know where to connect...
-        (!process.env.NEO4J_URI && !args.a) ||
-        // Don't know what password to use...
-        (!process.env.NEO4J_PASSWORD && !args.p)
-    );
-
-    if (badlyConfigured) {
-        usage();
-    }
-
-    const probabilityTable = args.workload ? require(args.workload) : defaultProbabilityTable;
+/**
+ * @param {*} args a yargs object
+ * @returns { iterateUntil, runType } of when to stop.
+ */
+const chooseTerminationType = (args) => {
     let iterateUntil;
     let runType;
 
@@ -58,25 +51,81 @@ const generateFromArgs = (args) => {
         runType = 'counted';
     }
 
-    const p = Number(args.concurrency) || Number(process.env.CONCURRENCY);
+    return { iterateUntil, runType };
+};
 
-    const failFast = ('fail-fast' in args) ? args['fail-fast'] : false;
-
+/**
+ * @param {*} args a yargs object
+ * @returns { username, password, address } of where to connect
+ */
+const chooseConnectionDetails = (args) => {
     const addressify = str => 
         str.indexOf('://') === -1 ? `bolt://${str}` : str;
 
-    const obj = {
+    return {
         username: args.u || process.env.NEO4J_USER || 'neo4j',
         password: args.p || process.env.NEO4J_PASSWORD,
         address: addressify(args.a || process.env.NEO4J_URI),
-        probabilityTable: new ProbabilityTable(probabilityTable),
-        runType,
-        checkpointFreq: args.checkpoint || process.env.CHECKPOINT_FREQUENCY || 5000,
+    };
+};
+
+const chooseConcurrency = (args) => {
+    const p = Number(args.concurrency) || Number(process.env.CONCURRENCY);
+    return {
         concurrency: (!Number.isNaN(p) && p > 0) ? p : 10,
-        iterateUntil,
+    };
+};
+
+const chooseProbabilityTable = (args) => {
+    let ptData = args.workload ? require(args.workload) : defaultProbabilityTable;
+    
+    if (args.query) {
+        // Always run the custom query.
+        ptData = [
+            [ 1.0, 'custom' ],
+        ];
+    }
+
+    const result = {
+        probabilityTable: new ProbabilityTable(ptData)
+    };
+
+    if (args.query) {
+        result.query = args.query;
+    }
+
+    return result;
+};
+
+const generateFromArgs = (args) => {
+    const badlyConfigured = (
+        // User is being inconsistent about when to stop.
+        (args.n && args.ms) ||
+        // Trying to specify to both run a single query and a different workload...
+        (args.query && args.workload) || 
+        // We don't know where to connect...
+        (!process.env.NEO4J_URI && !args.a) ||
+        // Don't know what password to use...
+        (!process.env.NEO4J_PASSWORD && !args.p)
+    );
+
+    if (badlyConfigured) {
+        usage();
+    }
+
+    const terminationType = chooseTerminationType(args);
+    const connectionDetails = chooseConnectionDetails(args);
+    const concurrency = chooseConcurrency(args);
+    const probabilityTable = chooseProbabilityTable(args);
+
+    const failFast = ('fail-fast' in args) ? args['fail-fast'] : false;
+
+    // Merge sub-objects.
+    const obj = _.merge({
+        checkpointFreq: args.checkpoint || process.env.CHECKPOINT_FREQUENCY || 5000,
         failFast,
         phase: 'NOT_STARTED',
-    };
+    }, terminationType, probabilityTable, connectionDetails, concurrency);
 
     if (obj.runType === 'counted') {
         obj.n = args.n || 10000;
@@ -101,6 +150,7 @@ module.exports = {
             .describe('n', 'number of hits on the database')
             .describe('ms', 'number of milliseconds to execute')
             .describe('workload', 'absolute path to JSON probability table/workload')
+            .describe('query', 'Cypher query to run')
             .default('concurrency', 10)
             .default('checkpoint', 5000)
             .demandOption(['p'])

@@ -20,7 +20,7 @@ class WritePropertyDataStrategy extends Strategy {
             .then(() => session.close());
     }
 
-    run(driver) {
+    run() {
         const p = this.randInt(10000);
         const r = p - 1000;
 
@@ -29,7 +29,7 @@ class WritePropertyDataStrategy extends Strategy {
             data.push(uuid.v4());
         }
 
-        const f = (s = driver.session()) => s.writeTransaction(tx => tx.run(`
+        const f = (s) => s.writeTransaction(tx => tx.run(`
           MATCH (a:Node) WHERE a.id >= $r and a.id <= $p
           WITH a LIMIT 100
           SET a.list${randInt(100)} = $data SET a:WriteArray

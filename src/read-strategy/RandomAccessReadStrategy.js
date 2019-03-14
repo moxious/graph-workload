@@ -8,11 +8,11 @@ class RandomAccessReadStrategy extends Strategy {
         this.limit = props.limit || 50;
     }
 
-    run(driver) {
+    run() {
         const nth = Math.floor(Math.random() * this.prime) + 1;
         const skip = Math.floor(Math.random() * 1000) + 1;
 
-        const f = (s = driver.session()) => s.readTransaction(tx => tx.run(`
+        const f = (s) => s.readTransaction(tx => tx.run(`
             MATCH (node)
             WHERE id(node) % $prime = $nth
             RETURN keys(node)

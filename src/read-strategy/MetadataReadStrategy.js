@@ -8,7 +8,7 @@ class MetadataReadStrategy extends Strategy {
         this.name = 'MetadataRead';
     }
 
-    run(driver) {
+    run() {
         const i = this.randInt(50);
 
         const f = (s) => {

@@ -21,7 +21,7 @@ class RawWriteStrategy extends Strategy {
     //         .then(() => session.close());
     // }
 
-    run(driver) {
+    run() {
         this.lastQuery = `
         FOREACH (id IN range(0,${this.n}) | 
             CREATE (:RawWriteNode {
@@ -38,7 +38,7 @@ class RawWriteStrategy extends Strategy {
         );`;
         
         this.lastParams = { uuid: uuid.v4() };
-        const f = (s = driver.session()) => s.writeTransaction(tx => tx.run(this.lastQuery, this.lastParams));
+        const f = (s) => s.writeTransaction(tx => tx.run(this.lastQuery, this.lastParams));
         return this.time(f);
     }
 }

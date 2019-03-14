@@ -1,7 +1,7 @@
 {
   "name": "graph-workload",
-  "version": "0.3.0",
-  "description": "",
+  "version": "0.3.1",
+  "description": "Tool for generating workloads running on Neo4j",
   "main": "src/run-workload.js",
   "scripts": {
     "graph-workload": "node src/run-workload.js",

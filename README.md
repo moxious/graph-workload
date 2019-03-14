@@ -10,27 +10,57 @@ reads/writes to execute against a database, while keeping track of execution sta
 
 You can run workloads timed (i.e. for 5,000 ms) or numbered (i.e. 5,000 runs).  
 
-# Running Stand-Alone
+# Usage
+
+```
+Usage: run-workload.js -p password
+   [-a address]
+   [-u username]
+   [-n hits] how many total queries to run
+   [--ms milliseconds] how many milliseconds to test for
+   [--workload /path/to/workload.json] probability table spec
+   [--query CYPHER_QUERY] single cypher query to run
+   [--concurrency c] how many concurrent queries to run (default: 10)
+   [--checkpoint cn] how often to print results in milliseconds (default: 5000)
+   [--fail-fast] if specified, the work will stop after encountering one
+   failure.
+
+You may only specify one of the options --n or --ms.
+You may only specify one of the options --workload or --query
+
+
+Options:
+  --help         Show help                                             [boolean]
+  --version      Show version number                                   [boolean]
+  -a             address to connect to                    [default: "localhost"]
+  -u             username                                     [default: "neo4j"]
+  -p             password                                             [required]
+  -n             number of hits on the database
+  --ms           number of milliseconds to execute
+  --workload     absolute path to JSON probability table/workload
+  --query        Cypher query to run
+  --concurrency                                                    [default: 10]
+  --checkpoint                                                   [default: 5000]
+
+Examples:
+  run-workload.js -a localhost -u neo4j -p  Run 10 hits on the local database
+  secret -n 10
+```
+
+# Run in Docker
+
+Simply pass any arguments the command recognizes to the docker container.
+
+```
+docker run --tty --interactive mdavidallen/graph-workload:latest -a my-neo4j-host.com -u neo4j -p password 2>&1
+```
+
+# Running Stand-Alone from Source
 
 ```
 yarn install
-export NEO4J_USER=neo4j
-export NEO4J_PASSWORD=supersecret
-export NEO4J_URI=bolt+routing://my-cloud-host:7687
-node src/index.js
+node src/run-workload.js -a localhost -u neo4j -p password
 ```
-
-Alternatively, you can pass some arguments, like this:
-
-```
-export NEO4J_USER=neo4j
-export NEO4J_PASSWORD=supersecret
-export NEO4J_URI=bolt+routing://my-cloud-host:7687
-
-node src/index.js --concurrency 10 --n 20 --workload /path/to/read-workload.json
-```
-
-This would run the read workload in batches of 20, with 10 concurrent queries.
 
 See the `workloads` directory for the format of the probability table.
 
@@ -54,23 +84,10 @@ yarn run test
 # Building Graph Workloads as a Docker Container
 
 ```
-docker build -t graph-workload:latest -f Dockerfile . 
+docker build -t mdavidallen/graph-workload:latest -f Dockerfile . 
 ```
 
-# Running
-
-```
-docker run \
-	-e "NEO4J_URI=bolt://foo-host/" \
-	-e "NEO4J_USER=neo4j" \
-	-e "NEO4J_PASSWORD=secret" \
-	-e "CONCURRENCY=10" \
-	graph-workload:latest 
-```
-
-# Adjusting Workload
-
-This is not that friendly or configurable from the outside yet.  But essentially:
+# Defining your own Custom Workload
 
 - Stress tester has a number of 'read strategies' and 'write strategies'
 - There is a probability table; the stress tester rolls random numbers and picks a strategy

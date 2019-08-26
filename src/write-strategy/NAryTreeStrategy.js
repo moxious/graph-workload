@@ -1,5 +1,6 @@
 const Strategy = require('../Strategy');
 const Promise = require('bluebird');
+const neo4j = require('neo4j-driver').v1;
 
 class NAryTreeStrategy extends Strategy {
     constructor(props) {
@@ -31,7 +32,7 @@ class NAryTreeStrategy extends Strategy {
             MATCH (p:Leaf)
             WHERE p.val >= $tracker
             WITH p ORDER BY p.val DESC, rand()
-            LIMIT ${this.n}
+            LIMIT ${neo4j.int(this.n)}
             WHERE NOT (p)-[:child]->(:NAryTree)
             WITH p
             REMOVE p:Leaf

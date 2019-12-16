@@ -11,7 +11,7 @@ let sessionPool = null;
  * ones who are pulling these sessions.
  */
 module.exports = {
-    getPool: (driver, poolSize) => {
+    getPool: (driver, options) => {
         if (sessionPool) {
             return sessionPool;
         }
@@ -20,7 +20,11 @@ module.exports = {
         // See the generic-pool module for more details.
         const factory = {
             create: () => {
-                const s = driver.session();
+                const config = {};
+                if (options.database) {
+                    config.database = options.database;
+                }
+                const s = driver.session(config);
                 return s;
             },
             destroy: session => {
@@ -32,7 +36,7 @@ module.exports = {
                     .catch(err => false),
         };
 
-        const sessionPoolOpts = { min: 1, max: poolSize };
+        const sessionPoolOpts = { min: 1, max: options.concurrency || 10 };
         console.log('Creating session pool with ', sessionPoolOpts);
         sessionPool = genericPool.createPool(factory, sessionPoolOpts);
         sessionPool.on('factoryCreateError', err => console.log('SESSION POOL ERROR', err));

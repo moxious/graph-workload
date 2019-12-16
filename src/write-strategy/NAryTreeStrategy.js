@@ -12,7 +12,6 @@ class NAryTreeStrategy extends Strategy {
 
     setup(driver) {
         super.setup(driver);
-        const session = driver.session(this.sessionOptions());
 
         const queries = [
             "CREATE INDEX ON :NAryTree(val)",
@@ -20,8 +19,12 @@ class NAryTreeStrategy extends Strategy {
             "CREATE (a:NAryTree:Leaf { label: 'ROOT', val: 2 })",
         ];
 
-        return Promise.map(queries, query => session.run(query))
-            .then(() => session.close());
+        return Promise.all(queries.map(q => {
+            const session = driver.session(this.sessionOptions());
+            return session.run(q)
+                .catch(e => this.ignore(e, 'An equivalent index already exists'))
+                .then(() => session.close());
+        }));
     }
 
     run() {

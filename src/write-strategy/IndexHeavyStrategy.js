@@ -40,8 +40,12 @@ class IndexHeavyStrategy extends Strategy {
             'CREATE INDEX ON :Address(score)',
         ];
 
-        return Promise.map(queries, q => session.run(q))
-            .then(() => session.close());
+        return Promise.all(queries.map(q => {
+            const session = driver.session(this.sessionOptions());
+            return session.run(q)
+                .then(() => session.close())
+                .catch(e => this.ignore(e, 'An equivalent index already exists'));
+        }));
     }
     
     run() {

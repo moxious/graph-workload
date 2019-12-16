@@ -9,6 +9,18 @@ class Strategy {
         this.timings = [];
     }
 
+    sessionOptions() {
+        const opts = {};
+
+        if (this.props.runConfig && this.props.runConfig.database) {
+            opts.database = this.props.runConfig.database;
+        } else if (!this.props.runConfig) {
+            throw new Error('Strategy initialized without runConfig');
+        }
+
+        return opts;
+    }
+
     setup(driver) { 
         this.driver = driver;
         return Promise.resolve(true); 

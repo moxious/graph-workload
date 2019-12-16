@@ -125,6 +125,7 @@ const generateFromArgs = (args) => {
         checkpointFreq: args.checkpoint || process.env.CHECKPOINT_FREQUENCY || 5000,
         failFast,
         phase: 'NOT_STARTED',
+        database: args.database || null,
     }, terminationType, probabilityTable, connectionDetails, concurrency);
 
     if (obj.runType === 'counted') {
@@ -147,6 +148,7 @@ module.exports = {
             .describe('a', 'address to connect to')
             .describe('u', 'username')
             .describe('p', 'password')
+            .describe('d', 'database')
             .describe('n', 'number of hits on the database')
             .describe('ms', 'number of milliseconds to execute')
             .describe('workload', 'absolute path to JSON probability table/workload')

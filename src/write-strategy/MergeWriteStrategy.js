@@ -11,15 +11,17 @@ class MergeWriteStrategy extends Strategy {
 
     setup(driver) {
         super.setup(driver);
-        
+
         const queries = [
             'CREATE INDEX ON :MergeNode(id)',
             'FOREACH (id IN range(0,10000) | MERGE (:MergeNode {id:id}));',
         ];
-        
-        const session = driver.session();
-        return Promise.map(queries, query => session.run(query))
-            .then(() => session.close());
+
+        return Promise.all(queries.map(q => {
+            const session = driver.session(this.sessionOptions());
+            return session.run(q).then(() => session.close())
+                .catch(e => this.ignore(e, 'An equivalent index already exists'));
+        }));
     }
 
     run() {
@@ -30,14 +32,14 @@ class MergeWriteStrategy extends Strategy {
         MERGE (n)-[:link {r: $r, uuid: $u4 }]->(p)
         MERGE (n)-[:otherlink { r: $r2, uuid: $u5 }]->(z)
         RETURN 1;`;
-        
-        this.lastParams = { 
-          r: this.randInt(100000), 
-          id1: this.randInt(this.n), 
-          id2: this.randInt(this.n), 
-          id3: this.randInt(this.n),
-          u1: uuid.v4(), u2: uuid.v4(), u3: uuid.v4(), u4: uuid.v4(), u5: uuid.v4(),
-          r2: this.randInt(100000),
+
+        this.lastParams = {
+            r: this.randInt(100000),
+            id1: this.randInt(this.n),
+            id2: this.randInt(this.n),
+            id3: this.randInt(this.n),
+            u1: uuid.v4(), u2: uuid.v4(), u3: uuid.v4(), u4: uuid.v4(), u5: uuid.v4(),
+            r2: this.randInt(100000),
         };
 
         const f = (s) => s.writeTransaction(tx => tx.run(this.lastQuery, this.lastParams));

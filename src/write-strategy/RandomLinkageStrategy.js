@@ -1,5 +1,5 @@
 const Strategy = require('../Strategy');
-const Promise = require('bluebird');
+const neo4j = require('neo4j-driver');
 const uuid = require('uuid');
 
 class RandomLinkageStrategy extends Strategy {
@@ -10,7 +10,6 @@ class RandomLinkageStrategy extends Strategy {
     }
 
     run() {
-
         this.lastQuery = `
             MATCH (a) 
             WITH a 
@@ -24,8 +23,8 @@ class RandomLinkageStrategy extends Strategy {
         `;
         
         this.lastParams = { 
-            idx1: this.randInt(this.n), 
-            idx2: this.randInt(this.n),
+            idx1: neo4j.int(this.randInt(this.n)),
+            idx2: neo4j.int(this.randInt(this.n)),
             id: uuid.v4(), 
         };
         const f = (s) => s.writeTransaction(tx => tx.run(this.lastQuery, this.lastParams));

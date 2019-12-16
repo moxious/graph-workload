@@ -9,6 +9,18 @@ class Strategy {
         this.timings = [];
     }
 
+    sessionOptions() {
+        const opts = {};
+
+        if (this.props.runConfig && this.props.runConfig.database) {
+            opts.database = this.props.runConfig.database;
+        } else if (!this.props.runConfig) {
+            throw new Error('Strategy initialized without runConfig');
+        }
+
+        return opts;
+    }
+
     setup(driver) { 
         this.driver = driver;
         return Promise.resolve(true); 
@@ -63,6 +75,16 @@ class Strategy {
         console.log(`${key}_MAX=${maxV}\n`);
         console.log(`${key}_RUNS=${runs}\n`);
         console.log(`${this.name}: ${runs} runs avg ${avgV.toFixed(2)} ms min ${minV} ms max ${maxV} ms\n`);
+    }
+
+    ignore(e, match) {
+        const str = `${e}`;
+
+        if (str.indexOf(match) > -1) {
+            return true;
+        }
+
+        throw e;
     }
 
     time(somePromiseFunc, data={}) {

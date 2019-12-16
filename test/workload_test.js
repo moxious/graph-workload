@@ -3,7 +3,7 @@ const assert = require('chai').assert;
 const Workload = require('../src/workload');
 const runConfig = require('../src/run-configuration');
 const WorkloadStats = require('../src/stats/index');
-const neo4j = require('neo4j-driver').v1;
+const neo4j = require('neo4j-driver');
 const sinon = require('sinon');
 const mocks = require('./mocks');
 

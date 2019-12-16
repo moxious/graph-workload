@@ -36,7 +36,7 @@ describe('Write Strategies', function() {
 
             beforeEach(() => {
                 sp = new mocks.MockSessionPool();
-                s = new Strat({ sessionPool: sp });
+                s = new Strat({ sessionPool: sp, runConfig: {} });
                 driver = new mocks.MockDriver();
             });
 

@@ -75,6 +75,17 @@ Create a lot of nodes as fast as possible:
 npm run graph-workload -- -a localhost -u neo4j -p admin --query 'Unwind range(1,1000000) as id create (n);' -n 50 --concurrency 4
 ```
 
+# Neo4j 4.0 / Multidatabase
+
+As of Neo4j 4.0, sessions support multi-database.  Use the `-d` or `--database` argument to direct
+where the workload should go.  By default, the workload goes to the default database (usually `neo4j`).
+
+Example:
+
+```
+npm run graph-workload -- -a neo4j://my-cluster -u neo4j -p admin --database mydb
+```
+
 # Tests
 
 ```

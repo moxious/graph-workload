@@ -134,7 +134,6 @@ const generateFromArgs = (args) => {
         obj.ms = args.ms || 1000 * 60 * 5; // 5 minutes
     }
 
-    console.log(JSON.stringify(obj, null, 2));
     return obj;
 };
 

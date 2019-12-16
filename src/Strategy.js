@@ -77,6 +77,16 @@ class Strategy {
         console.log(`${this.name}: ${runs} runs avg ${avgV.toFixed(2)} ms min ${minV} ms max ${maxV} ms\n`);
     }
 
+    ignore(e, match) {
+        const str = `${e}`;
+
+        if (str.indexOf(match) > -1) {
+            return true;
+        }
+
+        throw e;
+    }
+
     time(somePromiseFunc, data={}) {
         const start = new Date().getTime();
 

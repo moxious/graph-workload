@@ -26,21 +26,21 @@ const RandomAccessReadStrategy = require('./read-strategy/RandomAccessReadStrate
 const builder = (sessionPool, runConfig) => {
     const defaultStratTable = {
         // WRITE STRATEGIES
-        naryWrite: new NAryTreeStrategy({ n: 2, sessionPool }),
-        fatnodeWrite: new FatNodeAppendStrategy({ sessionPool }),
-        mergeWrite: new MergeWriteStrategy({ n: 1000000, sessionPool }),
-        rawWrite: new RawWriteStrategy({ n: 10, sessionPool }),
-        randomLinkage: new RandomLinkageStrategy({ n: 1000000, sessionPool }),
-        starWrite: new StarWriteStrategy({ sessionPool }),
-        indexHeavy: new IndexHeavyStrategy({ sessionPool }),
-        lockTorture: new LockTortureStrategy({ sessionPool }),
-        luceneWrite: new LuceneWriteStrategy({ sessionPool }),
+        naryWrite: new NAryTreeStrategy({ n: 2, sessionPool, runConfig }),
+        fatnodeWrite: new FatNodeAppendStrategy({ sessionPool, runConfig }),
+        mergeWrite: new MergeWriteStrategy({ n: 1000000, sessionPool, runConfig }),
+        rawWrite: new RawWriteStrategy({ n: 10, sessionPool, runConfig }),
+        randomLinkage: new RandomLinkageStrategy({ n: 1000000, sessionPool, runConfig }),
+        starWrite: new StarWriteStrategy({ sessionPool, runConfig }),
+        indexHeavy: new IndexHeavyStrategy({ sessionPool, runConfig }),
+        lockTorture: new LockTortureStrategy({ sessionPool, runConfig }),
+        luceneWrite: new LuceneWriteStrategy({ sessionPool, runConfig }),
 
         // READ STRATEGIES
-        aggregateRead: new AggregateReadStrategy({ sessionPool }),
-        metadataRead: new MetadataReadStrategy({ sessionPool }),
-        longPathRead: new LongPathReadStrategy({ sessionPool }),
-        randomAccess: new RandomAccessReadStrategy({ sessionPool }),
+        aggregateRead: new AggregateReadStrategy({ sessionPool, runConfig }),
+        metadataRead: new MetadataReadStrategy({ sessionPool, runConfig }),
+        longPathRead: new LongPathReadStrategy({ sessionPool, runConfig }),
+        randomAccess: new RandomAccessReadStrategy({ sessionPool, runConfig }),
     };
 
     if (runConfig) {

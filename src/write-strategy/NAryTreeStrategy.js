@@ -1,6 +1,6 @@
 const Strategy = require('../Strategy');
 const Promise = require('bluebird');
-const neo4j = require('neo4j-driver').v1;
+const neo4j = require('neo4j-driver');
 
 class NAryTreeStrategy extends Strategy {
     constructor(props) {
@@ -12,7 +12,7 @@ class NAryTreeStrategy extends Strategy {
 
     setup(driver) {
         super.setup(driver);
-        const session = driver.session();
+        const session = driver.session(this.sessionOptions());
 
         const queries = [
             "CREATE INDEX ON :NAryTree(val)",

@@ -16,7 +16,7 @@ class RawWriteStrategy extends Strategy {
     //         'FOREACH (id IN range(0,10000) | MERGE (:MergeNode {id:id}));',
     //     ];
         
-    //     const session = driver.session();
+    //     const session = driver.session(this.sessionOptions());
     //     return Promise.map(queries, query => session.run(query))
     //         .then(() => session.close());
     // }

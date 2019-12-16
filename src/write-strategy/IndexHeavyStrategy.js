@@ -14,7 +14,7 @@ class IndexHeavyStrategy extends Strategy {
 
     setup(driver) {
         super.setup(driver);
-        const session = driver.session();
+        const session = driver.session(this.sessionOptions());
 
         const queries = [
             'CREATE INDEX ON :Customer(id)',

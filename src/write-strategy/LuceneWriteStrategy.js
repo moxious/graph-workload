@@ -14,7 +14,7 @@ class LuceneWriteStrategy extends Strategy {
 
     setup(driver) {
         super.setup(driver);
-        const session = driver.session();
+        const session = driver.session(this.sessionOptions());
 
         // Set up some basic nodes and index.
         const queries = [

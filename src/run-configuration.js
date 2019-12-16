@@ -125,7 +125,7 @@ const generateFromArgs = (args) => {
         checkpointFreq: args.checkpoint || process.env.CHECKPOINT_FREQUENCY || 5000,
         failFast,
         phase: 'NOT_STARTED',
-        database: args.database || null,
+        database: args.database || args.d || null,
     }, terminationType, probabilityTable, connectionDetails, concurrency);
 
     if (obj.runType === 'counted') {
@@ -134,6 +134,7 @@ const generateFromArgs = (args) => {
         obj.ms = args.ms || 1000 * 60 * 5; // 5 minutes
     }
 
+    console.log(JSON.stringify(obj, null, 2));
     return obj;
 };
 

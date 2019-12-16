@@ -1,7 +1,7 @@
 const pool = require('./sessionPool');
 const strategies = require('./strategies');
 const WorkloadStats = require('./stats');
-const neo4j = require('neo4j-driver').v1;
+const neo4j = require('neo4j-driver');
 const uuid = require('uuid');
 const PromisePool = require('es6-promise-pool');
 
@@ -65,7 +65,7 @@ class Workload {
     this.driver = neo4j.driver(this.runConfig.address,
       neo4j.auth.basic(this.runConfig.username, this.runConfig.password));
 
-    this.sessionPool = pool.getPool(this.driver, this.runConfig.concurrency);
+    this.sessionPool = pool.getPool(this.driver, this.runConfig);
     this.strategyTable = strategies.builder(this.sessionPool, this.runConfig);
     this.stats = new WorkloadStats(this.runConfig);
   

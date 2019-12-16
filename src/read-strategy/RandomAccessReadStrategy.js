@@ -1,5 +1,5 @@
 const Strategy = require('../Strategy');
-const neo4j = require('neo4j-driver').v1;
+const neo4j = require('neo4j-driver');
 
 class RandomAccessReadStrategy extends Strategy {
     constructor(props) {

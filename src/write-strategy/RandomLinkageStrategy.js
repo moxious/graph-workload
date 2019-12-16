@@ -1,5 +1,5 @@
 const Strategy = require('../Strategy');
-const neo4j = require('neo4j-driver').v1;
+const neo4j = require('neo4j-driver');
 const uuid = require('uuid');
 
 class RandomLinkageStrategy extends Strategy {
@@ -10,7 +10,6 @@ class RandomLinkageStrategy extends Strategy {
     }
 
     run() {
-
         this.lastQuery = `
             MATCH (a) 
             WITH a 

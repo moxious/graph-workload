@@ -83,7 +83,7 @@ where the workload should go.  By default, the workload goes to the default data
 Example:
 
 ```
-npm run graph-workload -- -a neo4j://my-cluster -u neo4j -p admin --database mydb
+npm run graph-workload -- -a neo4j://my-cluster -u neo4j -p admin -d mydb
 ```
 
 # Tests

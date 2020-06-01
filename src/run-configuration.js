@@ -125,7 +125,7 @@ const generateFromArgs = (args) => {
         checkpointFreq: args.checkpoint || process.env.CHECKPOINT_FREQUENCY || 5000,
         failFast,
         phase: 'NOT_STARTED',
-        database: args.database || args.d || null,
+        database: args.d || null,
     }, terminationType, probabilityTable, connectionDetails, concurrency);
 
     if (obj.runType === 'counted') {

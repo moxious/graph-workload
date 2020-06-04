@@ -62,17 +62,24 @@ class Workload {
    */
   initialize() {
     console.log('Connecting to ', this.runConfig.address);
+
+    const driverOptions = {
+      maxConnectionLifetime: 8 * 1000 * 60, // 8 minutes
+      connectionLivenessCheckTimeout: 2 * 1000 * 60,
+    };
+
     this.driver = neo4j.driver(this.runConfig.address,
-      neo4j.auth.basic(this.runConfig.username, this.runConfig.password));
+      neo4j.auth.basic(this.runConfig.username, this.runConfig.password),
+      driverOptions);
 
     this.sessionPool = pool.getPool(this.driver, this.runConfig);
     this.strategyTable = strategies.builder(this.sessionPool, this.runConfig);
     this.stats = new WorkloadStats(this.runConfig);
-  
+
     this.promisePool = new PromisePool(promiseProducer(this), this.runConfig.concurrency);
     this.promisePool.addEventListener('rejected',
       event => this.stats.internalError(event));
-    
+
     const runStrategySetupPromises = Object.keys(this.strategyTable)
       .map(stratName => this.strategyTable[stratName].setup(this.driver));
 

@@ -131,6 +131,7 @@ const generateFromArgs = (args) => {
     const obj = _.merge({
         generator: schema ? new MockData(schema) : null,
         batchSize,
+        runcheckpoint: args.runcheckpoint,
         checkpointFreq: args.checkpoint || process.env.CHECKPOINT_FREQUENCY || 5000,
         failFast,
         phase: 'NOT_STARTED',
@@ -158,6 +159,7 @@ module.exports = {
             .describe('u', 'username')
             .describe('p', 'password')
             .describe('d', 'database')
+            .describe('runcheckpoint', 'whether to run db checkpointing or not')
             .describe('schema', 'batch schema file')
             .describe('batchsize', 'number of records per batch, usable only with schema')
             .describe('n', 'number of hits on the database')
@@ -166,6 +168,7 @@ module.exports = {
             .describe('query', 'Cypher query to run')
             .default('concurrency', 10)
             .default('checkpoint', 5000)
+            .default('runcheckpoint', false)
             .demandOption(['p'])
             .argv;
     },

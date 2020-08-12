@@ -1,0 +1,9 @@
+{
+    "id": "random.uuid",
+    "firstName": "name.firstName",
+    "lastName": "name.lastName",
+    "email": "internet.email",
+    "job": "name.jobTitle",
+    "phone": "phone.phoneNumber",
+    "favoriteColor": "commerce.color"
+}

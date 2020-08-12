@@ -1,6 +1,7 @@
 const terminateAfter = require('./termination-condition');
 const ProbabilityTable = require('./stats/ProbabilityTable');
 const _ = require('lodash');
+const MockData = require('./datasource/MockData');
 
 const usageStr = `
 Usage: run-workload.js -p password
@@ -10,6 +11,8 @@ Usage: run-workload.js -p password
    [--ms milliseconds] how many milliseconds to test for
    [--workload /path/to/workload.json] probability table spec
    [--query CYPHER_QUERY] single cypher query to run
+   [--schema /path/to/schema.json] schema for generated records (only used with --query)
+   [--batchsize [1000]] number of records from schema to generate per batch
    [--concurrency c] how many concurrent queries to run (default: 10)
    [--checkpoint cn] how often to print results in milliseconds (default: 5000)
    [--fail-fast] if specified, the work will stop after encountering one failure.
@@ -106,7 +109,9 @@ const generateFromArgs = (args) => {
         // We don't know where to connect...
         (!process.env.NEO4J_URI && !args.a) ||
         // Don't know what password to use...
-        (!process.env.NEO4J_PASSWORD && !args.p)
+        (!process.env.NEO4J_PASSWORD && !args.p) ||
+        // You can't specify a schema if you don't have a query to consume it.
+        (args.schema && !args.query)
     );
 
     if (badlyConfigured) {
@@ -118,10 +123,15 @@ const generateFromArgs = (args) => {
     const concurrency = chooseConcurrency(args);
     const probabilityTable = chooseProbabilityTable(args);
 
+    const schema = args.schema ? require(args.schema) : null;
+    const batchSize = args.batchSize ? args.batchSize : 1000;
     const failFast = ('fail-fast' in args) ? args['fail-fast'] : false;
 
     // Merge sub-objects.
     const obj = _.merge({
+        generator: schema ? new MockData(schema) : null,
+        batchSize,
+        runcheckpoint: args.runcheckpoint,
         checkpointFreq: args.checkpoint || process.env.CHECKPOINT_FREQUENCY || 5000,
         failFast,
         phase: 'NOT_STARTED',
@@ -149,12 +159,16 @@ module.exports = {
             .describe('u', 'username')
             .describe('p', 'password')
             .describe('d', 'database')
+            .describe('runcheckpoint', 'whether to run db checkpointing or not')
+            .describe('schema', 'batch schema file')
+            .describe('batchsize', 'number of records per batch, usable only with schema')
             .describe('n', 'number of hits on the database')
             .describe('ms', 'number of milliseconds to execute')
             .describe('workload', 'absolute path to JSON probability table/workload')
             .describe('query', 'Cypher query to run')
             .default('concurrency', 10)
             .default('checkpoint', 5000)
+            .default('runcheckpoint', false)
             .demandOption(['p'])
             .argv;
     },

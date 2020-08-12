@@ -76,7 +76,19 @@ class Workload {
     const runStrategySetupPromises = Object.keys(this.strategyTable)
       .map(stratName => this.strategyTable[stratName].setup(this.driver));
 
-    return Promise.all(runStrategySetupPromises);
+    return Promise.all(runStrategySetupPromises)
+      .then(results => {
+        if (this.runConfig.runcheckpoint) {
+          const opts = {};
+          if (this.runConfig.database) { opts.database = this.runConfig.database; }
+          const session = this.driver.session(opts);
+          console.log('Calling db.checkpoint method to flush prior to run');
+          return session.run('CALL db.checkpoint()')
+            .then(session.close);
+        }
+
+        return results;
+      });
   }
 
   getRunConfiguration() { return this.runConfig; }

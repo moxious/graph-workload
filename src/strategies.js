@@ -55,6 +55,8 @@ const builder = (sessionPool, runConfig) => {
             if (label === 'custom') {
                 chosenTable[label] = new SimpleQueryStrategy({
                     sessionPool,
+                    generator: runConfig.generator,
+                    batchSize: runConfig.batchSize,
                     query: runConfig.query,
                     mode: runConfig.mode || 'WRITE',
                 });

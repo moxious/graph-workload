@@ -20,6 +20,9 @@ Usage: run-workload.js -p password
    [--ms milliseconds] how many milliseconds to test for
    [--workload /path/to/workload.json] probability table spec
    [--query CYPHER_QUERY] single cypher query to run
+   [--schema /path/to/schema.json] schema for generated records (only used with
+   --query)
+   [--batchsize [1000]] number of records from schema to generate per batch
    [--concurrency c] how many concurrent queries to run (default: 10)
    [--checkpoint cn] how often to print results in milliseconds (default: 5000)
    [--fail-fast] if specified, the work will stop after encountering one
@@ -35,6 +38,9 @@ Options:
   -a             address to connect to                    [default: "localhost"]
   -u             username                                     [default: "neo4j"]
   -p             password                                             [required]
+  -d             database
+  --schema       batch schema file
+  --batchsize    number of records per batch, usable only with schema
   -n             number of hits on the database
   --ms           number of milliseconds to execute
   --workload     absolute path to JSON probability table/workload
@@ -69,11 +75,27 @@ program arguments, as in, `npm run graph-workload -- --n 20`
 
 # Examples
 
-Create a lot of nodes as fast as possible:
+## Create a lot of nodes as fast as possible:
 
 ```
 npm run graph-workload -- -a localhost -u neo4j -p admin --query 'Unwind range(1,1000000) as id create (n);' -n 50 --concurrency 4
 ```
+
+## Write custom data generated in batches 
+
+Fake/mock data can be generated with functions from [fakerjs](https://www.npmjs.com/package/faker).
+
+Using this technique you can generate your own data and create
+custom load patterns.  Similar to other Neo4j utilities, the batch will be present in the query form: "UNWIND batch AS event".
+
+```
+npm run graph-workload -- -a localhost -u neo4j -p admin \
+  --query 'CREATE (t:Test) SET t += event' \
+  --batchsize 1000 \
+  --schema /absolute/path/to/schemas/myschema.json
+```
+
+See `src/schemas/user.json` as an example of a schema you can use in this way.  Keys are field names to generate, values are the faker functions used to populate that field.
 
 # Neo4j 4.0 / Multidatabase
 

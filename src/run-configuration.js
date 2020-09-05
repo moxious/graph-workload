@@ -2,6 +2,7 @@ const terminateAfter = require('./termination-condition');
 const ProbabilityTable = require('./stats/ProbabilityTable');
 const _ = require('lodash');
 const MockData = require('./datasource/MockData');
+const { usage } = require('yargs');
 
 const usageStr = `
 Usage: run-workload.js -p password
@@ -11,6 +12,7 @@ Usage: run-workload.js -p password
    [--ms milliseconds] how many milliseconds to test for
    [--workload /path/to/workload.json] probability table spec
    [--query CYPHER_QUERY] single cypher query to run
+   [--mode READ or WRITE] query mode to use, applies to usage of --query only
    [--schema /path/to/schema.json] schema for generated records (only used with --query)
    [--batchsize [1000]] number of records from schema to generate per batch
    [--concurrency c] how many concurrent queries to run (default: 10)
@@ -101,21 +103,21 @@ const chooseProbabilityTable = (args) => {
 };
 
 const generateFromArgs = (args) => {
-    const badlyConfigured = (
-        // User is being inconsistent about when to stop.
-        (args.n && args.ms) ||
-        // Trying to specify to both run a single query and a different workload...
-        (args.query && args.workload) || 
-        // We don't know where to connect...
-        (!process.env.NEO4J_URI && !args.a) ||
-        // Don't know what password to use...
-        (!process.env.NEO4J_PASSWORD && !args.p) ||
-        // You can't specify a schema if you don't have a query to consume it.
-        (args.schema && !args.query)
-    );
+    const badlyConfigured = [
+        args => (args.n && args.ms) ? 'You cannot use both n and ms for timing' : null,
+        args => (args.query && args.workload) ? 'You cannot specify both a workload and a single query' : null,
+        args => (!process.env.NEO4J_URI && !args.a) ? 'No address specified to connect!' : null,
+        args => (!process.env.NEO4J_PASSWORD && !args.p) ? 'No password specified' : null,
+        args => (args.schema && !args.query) ? 'You cannot specify a schema if you do not have a query to consume it' : null,
+        args => (args.mode && !args.query) ? 'Specifying mode only works with --query' : null,
+    ];
 
-    if (badlyConfigured) {
-        usage();
+    for (let idx in badlyConfigured) {
+        const problem = badlyConfigured[idx](args);
+        if (problem) {
+            console.log(problem);
+            throw new Error();
+        }
     }
 
     const terminationType = chooseTerminationType(args);
@@ -133,6 +135,7 @@ const generateFromArgs = (args) => {
         batchSize,
         runcheckpoint: args.runcheckpoint,
         checkpointFreq: args.checkpoint || process.env.CHECKPOINT_FREQUENCY || 5000,
+        mode: args.mode,
         failFast,
         phase: 'NOT_STARTED',
         database: args.d || null,

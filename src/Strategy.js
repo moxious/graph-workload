@@ -69,11 +69,11 @@ class Strategy {
         
         const key = `BENCHMARK_${this.name}`.replace(/strategy/gi, '');
 
-        console.log(`${key}_ELAPSED=${total}\n`);
-        console.log(`${key}_AVG=${avgV}\n`);
-        console.log(`${key}_MIN=${minV}\n`);
-        console.log(`${key}_MAX=${maxV}\n`);
-        console.log(`${key}_RUNS=${runs}\n`);
+        console.log(`${key}_ELAPSED=${total}`);
+        console.log(`${key}_AVG=${avgV}`);
+        console.log(`${key}_MIN=${minV}`);
+        console.log(`${key}_MAX=${maxV}`);
+        console.log(`${key}_RUNS=${runs}`);
         console.log(`${this.name}: ${runs} runs avg ${avgV.toFixed(2)} ms min ${minV} ms max ${maxV} ms\n`);
     }
 

@@ -1103,10 +1103,10 @@ lodash@^4.17.13, lodash@^4.17.15:
   resolved "https://neo.jfrog.io/neo/api/npm/npm/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha1-tEf2ZwoEVbv+7dETku/zMOoJdUg=
 
-lodash@^4.17.19:
-  version "4.17.19"
-  resolved "https://neo.jfrog.io/neo/api/npm/npm/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
-  integrity sha1-5I3e2+MLMyF4PFtDAfvTU7weSks=
+lodash@^4.17.20:
+  version "4.17.20"
+  resolved "https://neo.jfrog.io/neo/api/npm/npm/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
+  integrity sha1-tEqbYpe8tpjxxRo1RaKzs2jVnFI=
 
 log-symbols@3.0.0:
   version "3.0.0"
@@ -1202,10 +1202,10 @@ mocha@^7.2.0:
     yargs-parser "13.1.2"
     yargs-unparser "1.6.0"
 
-moment@^2.24.0:
-  version "2.24.0"
-  resolved "https://neo.jfrog.io/neo/api/npm/npm/moment/-/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
-  integrity sha1-DQVdU/UFKqZTyfbraLtdEr9cK1s=
+moment@^2.27.0:
+  version "2.27.0"
+  resolved "https://neo.jfrog.io/neo/api/npm/npm/moment/-/moment-2.27.0.tgz#8bff4e3e26a236220dfe3e36de756b6ebaa0105d"
+  integrity sha1-i/9OPiaiNiIN/j423nVrbrqgEF0=
 
 ms@2.1.1, ms@^2.1.1:
   version "2.1.1"

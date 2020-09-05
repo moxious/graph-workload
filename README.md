@@ -97,6 +97,12 @@ npm run graph-workload -- -a localhost -u neo4j -p admin \
 
 See `src/schemas/user.json` as an example of a schema you can use in this way.  Keys are field names to generate, values are the faker functions used to populate that field.
 
+## Explicit Transactions
+
+If you use the `--query` option, you may also use `--mode READ` or `WRITE`.  This enables the program
+to use explicit read or write transactions, so that when queries are sent to a cluster, they are routed
+appropriately according to the Neo4j routing rules.
+
 # Neo4j 4.0 / Multidatabase
 
 As of Neo4j 4.0, sessions support multi-database.  Use the `-d` or `--database` argument to direct
